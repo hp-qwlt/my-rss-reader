@@ -16,12 +16,13 @@ body {
   
   .rss-feed-title {
     font-size: 24px;
-    color: #333;
+    color: #2C3E50;
     margin-bottom: 20px;
     text-align: center;
   }
   
   .category-dropdown {
+    margin-top: 10px;
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
@@ -129,6 +130,9 @@ body {
       width: 100%;
       height: auto;
       cursor: pointer;
+    }
+    .rss-feed-title {
+      margin-left: '25%';
     }
   }
 
