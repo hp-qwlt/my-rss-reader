@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { RiLoader2Line } from 'react-icons/ri'; // Import loader icon
 import './RSSFeed.css'; // Import CSS for styling
 
 const targetUrl = 'https://a4c5-106-51-78-16.ngrok-free.app/rss-feed';
@@ -51,6 +52,12 @@ const RSSFeed = () => {
     navigate(`/post?pubDate=${encodeURIComponent(pubDate)}&category=${encodeURIComponent(category)}&title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`);
   };
 
+  const handleImageLoad = (index) => {
+    const updatedFeedItems = [...feedItems];
+    updatedFeedItems[index].imageLoading = false;
+    setFeedItems(updatedFeedItems);
+  };
+
   return (
     <div className="rss-feed">
       <h1 className="rss-feed-title">Posts</h1>
@@ -71,16 +78,27 @@ const RSSFeed = () => {
             <li key={index} className="rss-feed-item">
               <div className="rss-feed-item-image">
                 {item.enclosure && (
-                  <img src={item.enclosure} alt="Enclosure" className="enclosure-image" onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}/>
+                  <>
+                    {item.imageLoading && <RiLoader2Line className="loader-icon" />}
+                    <img
+                      src={item.enclosure}
+                      alt="Enclosure"
+                      className={`enclosure-image ${item.imageLoading ? 'hide' : ''}`}
+                      onLoad={() => handleImageLoad(index)}
+                      onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}
+                      onLoadStart={() => {
+                        const updatedFeedItems = [...feedItems];
+                        updatedFeedItems[index].imageLoading = true;
+                        setFeedItems(updatedFeedItems);
+                      }}
+                    />
+                  </>
                 )}
               </div>
               <div className="rss-feed-item-content">
-              <h2 className="rss-feed-item-title" onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}>{item.title}</h2>
+                <h2 className="rss-feed-item-title" onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}>{item.title}</h2>
                 <p className="rss-feed-item-description">{item.description}</p>
                 <p className="rss-feed-item-date">Date: {new Date(item.pubDate).toLocaleDateString()}</p>
-                {/* <button className="rss-feed-item-button" onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}>
-                  Read more
-                </button> */}
               </div>
             </li>
           ))}
