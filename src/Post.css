@@ -1,7 +1,8 @@
 .post-container {
-    max-width: 800px;
+    overflow: hidden; /* Prevent content overflow */
+    max-width: 800px; /* Adjust maximum width to fit viewport width with padding */
     margin: 0 auto;
-    padding: 30px;
+    padding: 10px;
     border: 2px solid #eee;
     border-radius: 12px;
     background-color: #fff;

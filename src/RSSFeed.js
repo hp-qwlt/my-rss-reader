@@ -82,7 +82,7 @@ const RSSFeed = () => {
             )}
             </div>
             <div className="rss-feed-item-content">
-            <h2 className="rss-feed-item-title">{item.title}</h2>
+            <h2 className="rss-feed-item-title" onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}>{item.title}`</h2>
             <p className="rss-feed-item-description">{item.description}</p>
             <p className="rss-feed-item-date">Date: {item.pubDate}</p>
             <button

@@ -32,6 +32,46 @@ const Post = () => {
     return date.toLocaleDateString('en-US', options);
   };
 
+  const renderGallery = (content) => {
+    const contentStr = content.toString(); // Convert content to a string
+
+    // Split the content into separate images and titles
+    const images = contentStr.match(/<img[^>]+>/g) || [];
+
+    // Check if there are more than four images in a row
+    if (images.length > 3) {
+      const galleryItems = [];
+      let imageCount = 0;
+      let galleryRow = [];
+
+      // Group images into rows of four
+      images.forEach((image, index) => {
+        galleryRow.push(parse(image));
+        imageCount++;
+
+        // If four images are added to the row or it's the last image, add the row to galleryItems
+        if (imageCount === 2 || index === images.length - 1) {
+          galleryItems.push(
+            <div key={index} className="gallery-row">
+              {galleryRow.map((item, idx) => (
+                <div key={idx} className="gallery-item">{item}</div>
+              ))}
+            </div>
+          );
+          galleryRow = [];
+          imageCount = 0;
+        }
+      });
+
+      return (
+        <div className="gallery">{galleryItems}</div>
+      );
+    } else {
+      // Render images without gallery
+      return parse(content); // Parse content as usual
+    }
+  };
+
   return (
     <div className="post-container">
       <h1 className="post-title">{parse(postTitle)}</h1>
@@ -44,7 +84,9 @@ const Post = () => {
           </>
         )}
       </p>
-      <div className="post-content">{parse(postContent)}</div> {/* Parse and render the post content */}
+      <div className="post-content">
+        {renderGallery(postContent)}
+      </div>
     </div>
   );
 };
