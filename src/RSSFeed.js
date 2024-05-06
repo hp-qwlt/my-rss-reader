@@ -27,7 +27,7 @@ const RSSFeed = () => {
           description: item.querySelector('description').textContent,
           category: item.querySelector('category') ? item.querySelector('category').textContent : '',
           content: item.querySelector('content\\:encoded, encoded').textContent,
-          enclosure: item.querySelector('enclosure') ? item.querySelector('enclosure').getAttribute('url') : null
+          enclosure: item.querySelector('enclosure') ? item.querySelector('enclosure').getAttribute('url') : null,
         }));
         setFeedItems(parsedItems);
         setLoading(false);
