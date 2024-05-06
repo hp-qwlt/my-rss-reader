@@ -1,10 +1,58 @@
-.rss-feed {
-    padding: 20px;
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    font-size: 16px; /* Increase overall font size */
+  }
+  
+  .rss-feed {
+    padding: 20px; /* Adjust padding */
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px; /* Set maximum width for responsiveness */
+    margin: 0 auto; /* Center the feed horizontally */
   }
   
   .rss-feed-title {
-    font-size: 24px;
+    font-size: 40px;
     margin-bottom: 20px;
+    color: #333;
+    text-align: center; /* Center the title */
+  }
+  
+  .category-dropdown {
+    display:flex;
+    /* margin-bottom: 20px; */
+    text-align: center; /* Center the dropdown */
+  }
+  
+  .category-dropdown label {
+    margin-top: 8px;
+    font-size: 20px;
+    margin-right: 10px;
+    color: #555;
+  }
+  
+  .category-dropdown select option {
+    font-size: 16px; /* Adjust font size for options */
+    padding: 8px; /* Adjust padding for options */
+  }
+  
+  .category-dropdown select {
+    font-size: 18px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    margin: auto; /* Center the dropdown horizontally */
+    width: 90%; /* Make the dropdown full width */
+  }
+  
+  .category-dropdown select:focus {
+    outline: none;
+    border-color: #007bff;
   }
   
   .rss-feed-list {
@@ -14,15 +62,22 @@
   
   .rss-feed-item {
     margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    display: flex; /* Use flexbox */
   }
   
   .rss-feed-item-title {
-    font-size: 20px;
-    margin-bottom: 5px;
+    font-size: 30px;
+    margin-bottom: 10px;
+    color: #333;
   }
   
   .rss-feed-item-description {
     margin-bottom: 10px;
+    color: #555;
+    font-size: 22px;
   }
   
   .rss-feed-item-date {
@@ -34,13 +89,85 @@
     background-color: #007bff;
     color: #fff;
     border: none;
-    padding: 5px 10px;
+    padding: 10px 20px;
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.3s;
+    font-size: 20px;
   }
   
   .rss-feed-item-button:hover {
     background-color: #0056b3;
+  }
+
+  
+  .enclosure-image {
+    max-width: 200px; /* Set maximum width for the image */
+    height: auto; /* Maintain aspect ratio */
+    margin-right: 20px; /* Add some space between the image and text */
+  }
+  
+  .rss-feed-item-image {
+    height: auto; /* Maintain aspect ratio */
+    max-width: 100px; /* Set maximum width for the image */
+    flex: 0 0 auto; /* The image will not grow or shrink */
+    margin-right: 20px; /* Add some space between the image and the text */
+  }
+  
+  .rss-feed-item-content {
+    margin-left: 100px;
+    flex: 1; /* The content will take up remaining space */
+  }
+  
+
+
+
+/* Existing CSS styles */
+
+/* Add media query for smaller screens */
+@media only screen and (max-width: 768px) {
+    .rss-feed {
+        overflow-x: hidden !important; /* Hide horizontal overflow */
+      }
+    .rss-feed-item {
+      flex-direction: column; /* Change flex direction to stack items vertically */
+    }
+  
+    .rss-feed-item-image {
+      margin-right: 0; /* Remove margin to align image with content */
+      margin-bottom: 10px; /* Add margin below image */
+      max-width: 100%; /* Make image fill the width of the container */
+      height: auto; /* Maintain aspect ratio */
+    }
+  
+    .rss-feed-item-content {
+      margin-left: 0; /* Remove left margin for content */
+    }
+  
+    .rss-feed-item-title {
+      font-size: 24px; /* Decrease font size for title */
+      margin-bottom: 5px; /* Adjust spacing below title */
+    }
+  
+    .rss-feed-item-description {
+      font-size: 18px; /* Decrease font size for description */
+      margin-bottom: 10px; /* Adjust spacing below description */
+    }
+  
+    .rss-feed-item-date {
+      font-size: 16px; /* Decrease font size for date */
+      margin-bottom: 5px; /* Adjust spacing below date */
+    }
+  
+    .rss-feed-item-button {
+      font-size: 16px; /* Decrease font size for button */
+      padding: 8px 16px; /* Adjust button padding */
+    }
+  
+    .enclosure-image {
+      max-width: 100%; /* Make image fill the width of the container */
+      height: auto; /* Maintain aspect ratio */
+      margin-bottom: 10px; /* Add margin below image */
+    }
   }
   
