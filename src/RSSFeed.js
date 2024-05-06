@@ -8,6 +8,7 @@ const RSSFeed = () => {
   const [feedItems, setFeedItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(''); // State for selected category
   const [filteredFeedItems, setFilteredFeedItems] = useState([]); // State for filtered feed items
+  const [loading, setLoading] = useState(true); // State for loading indicator
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,8 +38,10 @@ const RSSFeed = () => {
           return newItem;
         });
         setFeedItems(parsedItems);
+        setLoading(false); // Set loading to false when data is fetched
       } catch (error) {
         console.error('Error fetching RSS feed:', error);
+        setLoading(false); // Set loading to false in case of error
       }
     };
 
@@ -72,29 +75,34 @@ const RSSFeed = () => {
           ))}
         </select>
       </div>
-      <ul className="rss-feed-list">
-        {/* Render filtered feed items */}
-        {filteredFeedItems.map((item, index) => (
-        <li key={index} className="rss-feed-item">
-            <div className="rss-feed-item-image">
-            {item.enclosure && (
-                <img src={item.enclosure} alt="Enclosure" className="enclosure-image" />
-            )}
-            </div>
-            <div className="rss-feed-item-content">
-            <h2 className="rss-feed-item-title" onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}>{item.title}`</h2>
-            <p className="rss-feed-item-description">{item.description}</p>
-            <p className="rss-feed-item-date">Date: {item.pubDate}</p>
-            <button
-                className="rss-feed-item-button"
-                onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}
-            >
-                Read more
-            </button>
-            </div>
-        </li>
-        ))}
-      </ul>
+      {loading ? (
+         <div className="loader">
+       </div> // Render loading indicator while data is being fetched
+      ) : (
+        <ul className="rss-feed-list">
+          {/* Render filtered feed items */}
+          {filteredFeedItems.map((item, index) => (
+            <li key={index} className="rss-feed-item">
+              <div className="rss-feed-item-image">
+                {item.enclosure && (
+                  <img src={item.enclosure} alt="Enclosure" className="enclosure-image" />
+                )}
+              </div>
+              <div className="rss-feed-item-content">
+                <h2 className="rss-feed-item-title" onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}>{item.title}</h2>
+                <p className="rss-feed-item-description">{item.description}</p>
+                <p className="rss-feed-item-date">Date: {item.pubDate}</p>
+                <button
+                  className="rss-feed-item-button"
+                  onClick={() => handleReadMore(item.content, item.title, item.pubDate, item.category)}
+                >
+                  Read more
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
