@@ -4,8 +4,8 @@ import { RiLoader2Line } from 'react-icons/ri'; // Import loader icon
 import { MdHome, MdFavorite } from 'react-icons/md'; // Import Material Design home and favorite icons
 import './RSSFeed.css'; // Import CSS for styling
 
-const targetUrl = 'http://localhost:3001/rss-feed';
-const targetUrlScrape = 'http://localhost:3001/scrape';
+const targetUrl = 'http://51.20.254.164:3001/rss-feed';
+const targetUrlScrape = 'http://51.20.254.164:3001/scrape';
 
 const RSSFeed = () => {
   const [feedItems, setFeedItems] = useState([]);
