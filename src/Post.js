@@ -18,9 +18,11 @@ const Post = () => {
       const title = searchParams.get('title');
       const date = searchParams.get('pubDate');
       const category = searchParams.get('category');
+      const cleanedContent = content ? content.replace(/(<br\s*\/?>\s*){2,}/gi, '<br>').replace(/(<br>\s*<\/(ul|p|li)>)/gi, '</$2>') : '';
+      
       setPostDate(date || '');
       setPostCategory(category || '');
-      setPostContent(content || '');
+      setPostContent(cleanedContent || '');
       setPostTitle(title || '');
     };
 
@@ -39,6 +41,7 @@ const Post = () => {
       <div className="post-meta">
         <span className="author-name">Haripriya Sridharan</span> &bull;
         <span className="post-date">{parse(formatDate(postDate))}</span>
+        <hr/>
       </div>
       <div className="post-content">{parse(postContent)}</div>
     </div>
