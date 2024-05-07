@@ -3,11 +3,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { LikesProvider } from './likesContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+        <LikesProvider> {/* Wrap App component with LikesProvider */}
+         <App />
+      </LikesProvider> {/* Wrap App component with LikesProvider */}
   </React.StrictMode>
 );
 

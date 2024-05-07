@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RiLoader2Line } from 'react-icons/ri'; // Import loader icon
 import { MdHome, MdFavorite } from 'react-icons/md'; // Import Material Design home and favorite icons
 import './RSSFeed.css'; // Import CSS for styling
+import { LikesContext } from './likesContext'; // Import the LikesContext
 
 const targetUrl = 'https://api.haripriya.org/rss-feed';
 const targetUrlScrape = 'https://api.haripriya.org/scrape';
 
 const RSSFeed = () => {
   const [feedItems, setFeedItems] = useState([]);
-  const [likesData, setLikesData] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredFeedItems, setFilteredFeedItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likesLoading, setLikesLoading] = useState(true);
   const [likedItems, setLikedItems] = useState([]); // State to keep track of liked items
   const navigate = useNavigate();
+  const { likesData } = useContext(LikesContext);
+
+
+  useEffect(() => {
+  }, [likesData]);
 
   useEffect(() => {
     const fetchRSSFeed = async () => {
@@ -59,7 +64,7 @@ const RSSFeed = () => {
       try {
         const response = await fetch(targetUrlScrape);
         const data = await response.json();
-        setLikesData(data);
+        // setLikesData(data);
         setLikesLoading(false);
       } catch (error) {
         console.error('Error fetching likes data:', error);
@@ -70,7 +75,7 @@ const RSSFeed = () => {
   }, []);
 
   const handleReadMore = (content, title, pubDate, category,likesCount) => {
-    navigate(`/post?likesCount=${encodeURIComponent(likesCount)}&pubDate=${encodeURIComponent(pubDate)}&category=${encodeURIComponent(category)}&title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`);
+    navigate(`/post?pubDate=${encodeURIComponent(pubDate)}&category=${encodeURIComponent(category)}&title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`);
   };
   
   const handleImageLoad = (index) => {
@@ -122,7 +127,7 @@ const RSSFeed = () => {
                       className={`enclosure-image ${item.imageLoading ? 'hide' : ''}`}
                       onLoad={() => handleImageLoad(index)}
                       onClick={() => {
-                        const postLikesData = likesData.find(like => like.title === item.title);
+                        const postLikesData = likesData ? likesData.find(like => like.title === item.title) : [];
                         const likesCount = postLikesData ? postLikesData.likesCount : 0;
                         handleReadMore(item.content, item.title, item.pubDate, item.category, likesCount)}
                       }
@@ -141,7 +146,7 @@ const RSSFeed = () => {
                 <span onClick={() => handleLikeToggle(item.title)}>
                 <span className="favorite-icon">
                   
-                  {likesData.find(like => like.title === item.title) ? (
+                  {likesData && likesData.length > 0  && likesData.find(like => like.title === item.title) ? (
                     <span>
                     <svg stroke="currentColor" fill="currentColor" strokeWidth="2" viewBox="0 0 24 24" color="black" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" style={{ color: 'black', fill: likedItems.includes(item.title) ? 'red' : 'white', stroke: likedItems.includes(item.title) ? 'none' : 'red' }}>
                       <path style={{display:'none'}} fill="none" d="M0 0h24v24H0z"></path>
@@ -152,7 +157,7 @@ const RSSFeed = () => {
                     </span>
                   ) : (
                     <div id="heart">
-                                          <img class="bottom" src="https://images.freeimages.com/image/previews/a7f/pink-love-heart-png-design-5692900.png" width="20px" />
+                                          <img className="bottom" src="https://images.freeimages.com/image/previews/a7f/pink-love-heart-png-design-5692900.png" width="20px" />
                     </div>
                   )}
                 </span>
