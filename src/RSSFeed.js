@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RiLoader2Line } from 'react-icons/ri'; // Import loader icon
-import { MdHome, MdFavorite } from 'react-icons/md'; // Import Material Design home and favorite icons
+import { MdHome } from 'react-icons/md'; // Import Material Design home icon
 import './RSSFeed.css'; // Import CSS for styling
-import { LikesContext } from './likesContext'; // Import the LikesContext
+import { useLikes } from './likesContext'; // Import the LikesContext
 
 const targetUrl = 'https://api.haripriya.org/rss-feed';
 const targetUrlScrape = 'https://api.haripriya.org/scrape';
@@ -13,17 +13,12 @@ const RSSFeed = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredFeedItems, setFilteredFeedItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [likesLoading, setLikesLoading] = useState(true);
-  const [likedItems, setLikedItems] = useState([]); // State to keep track of liked items
   const navigate = useNavigate();
-  const { likesData } = useContext(LikesContext);
-
-
-  useEffect(() => {
-  }, [likesData]);
+  const { likesData, updateLikesData } = useLikes();
 
   useEffect(() => {
     const fetchRSSFeed = async () => {
+      setLoading(true);
       try {
         const response = await fetch(targetUrl);
         const data = await response.text();
@@ -51,47 +46,36 @@ const RSSFeed = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedCategory) {
-      const filteredItems = feedItems.filter(item => item.category === selectedCategory);
-      setFilteredFeedItems(filteredItems);
-    } else {
-      setFilteredFeedItems(feedItems);
-    }
+    setFilteredFeedItems(selectedCategory ? feedItems.filter(item => item.category === selectedCategory) : feedItems);
   }, [selectedCategory, feedItems]);
 
-  useEffect(() => {
-    const fetchLikesData = async () => {
-      try {
-        const response = await fetch(targetUrlScrape);
-        const data = await response.json();
-        // setLikesData(data);
-        setLikesLoading(false);
-      } catch (error) {
-        console.error('Error fetching likes data:', error);
-        setLikesLoading(false);
+  const handleLikeToggle = async (title) => {
+    const isAlreadyLiked = likesData.some(like => like.title === title && like.isLiked);
+    const newLikesCount = isAlreadyLiked ? parseInt(likesData.find(like => like.title === title).likesCount) - 1 : parseInt(likesData.find(like => like.title === title).likesCount) + 1;
+    
+    const updatedLikesData = likesData.map(like => {
+      if (like.title === title) {
+        return { ...like, likesCount: newLikesCount.toString(), isLiked: !isAlreadyLiked };
       }
-    };
-    fetchLikesData();
-  }, []);
-
-  const handleReadMore = (content, title, pubDate, category,likesCount) => {
-    navigate(`/post?pubDate=${encodeURIComponent(pubDate)}&category=${encodeURIComponent(category)}&title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`);
-  };
-  
-  const handleImageLoad = (index) => {
-    const updatedFeedItems = [...feedItems];
-    updatedFeedItems[index].imageLoading = false;
-    setFeedItems(updatedFeedItems);
-  };
-
-  const handleLikeToggle = (title) => {
-    setLikedItems(prevLikedItems => {
-      if (prevLikedItems.includes(title)) {
-        return prevLikedItems.filter(item => item !== title);
-      } else {
-        return [...prevLikedItems, title];
-      }
+      return like;
     });
+
+    updateLikesData(updatedLikesData);
+
+    try {
+      const response = await fetch('https://api.haripriya.org/update-likes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, likesCount: newLikesCount.toString() })
+      });
+      if (!response.ok) throw new Error('Failed to update likes');
+    } catch (error) {
+      console.error('Failed to update likes in Redis:', error);
+      // Revert the likes data in case of error
+      updateLikesData(likesData);
+    }
   };
 
   return (
@@ -120,49 +104,26 @@ const RSSFeed = () => {
             <li key={index} className="rss-feed-item">
               <div className="rss-feed-item-image">
                 {item.enclosure && (
-                  <>
-                    <img
-                      src={item.enclosure}
-                      alt="Enclosure"
-                      className={`enclosure-image ${item.imageLoading ? 'hide' : ''}`}
-                      onLoad={() => handleImageLoad(index)}
-                      onClick={() => {
-                        const postLikesData = likesData ? likesData.find(like => like.title === item.title) : [];
-                        const likesCount = postLikesData ? postLikesData.likesCount : 0;
-                        handleReadMore(item.content, item.title, item.pubDate, item.category, likesCount)}
-                      }
-                    />
-                  </>
+                  <img
+                    src={item.enclosure}
+                    alt="Enclosure"
+                    className="enclosure-image"
+                    onLoad={() => setFeedItems(feedItems.map((fi, fiIndex) => fiIndex === index ? {...fi, imageLoading: false} : fi))}
+                  />
                 )}
               </div>
               <div className="rss-feed-item-content">
-                <h2 className="rss-feed-item-title" onClick={() => {
-                  const postLikesData = likesData.find(like => like.title === item.title);
-                  const likesCount = postLikesData ? postLikesData.likesCount : 0;
-                  handleReadMore(item.content, item.title, item.pubDate, item.category, likesCount)}
-                }>{item.title}</h2>
+                <h2 className="rss-feed-item-title" onClick={() => navigate(`/post?pubDate=${encodeURIComponent(item.pubDate)}&category=${encodeURIComponent(item.category)}&title=${encodeURIComponent(item.title)}&content=${encodeURIComponent(item.content)}`)}>
+                  {item.title}
+                </h2>
                 <p className="rss-feed-item-description">{item.description}</p>
                 <p className="rss-feed-item-date">Date: {new Date(item.pubDate).toLocaleDateString()}</p>
-                <span onClick={() => handleLikeToggle(item.title)}>
-                <span className="favorite-icon">
-                  
-                  {likesData && likesData.length > 0  && likesData.find(like => like.title === item.title) ? (
-                    <span>
-                    <svg stroke="currentColor" fill="currentColor" strokeWidth="2" viewBox="0 0 24 24" color="black" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" style={{ color: 'black', fill: likedItems.includes(item.title) ? 'red' : 'white', stroke: likedItems.includes(item.title) ? 'none' : 'red' }}>
-                      <path style={{display:'none'}} fill="none" d="M0 0h24v24H0z"></path>
-                      <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-                     </svg>
-                     &nbsp;
-                    <span>{likesData.find(like => like.title === item.title).likesCount}</span>
-                    </span>
-                  ) : (
-                    <div id="heart">
-                                          <img className="bottom" src="https://images.freeimages.com/image/previews/a7f/pink-love-heart-png-design-5692900.png" width="20px" />
-                    </div>
-                  )}
+                <span onClick={() => handleLikeToggle(item.title)} className="favorite-icon">
+                  <svg stroke="currentColor" fill="currentColor" strokeWidth="2" viewBox="0 0 24 24" color="black" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" style={{ color: 'black', fill: likesData.find(like => like.title === item.title)?.isLiked ? 'red' : 'white', stroke: 'red' }}>
+                    <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+                  </svg>
+                  &nbsp;{likesData.find(like => like.title === item.title)?.likesCount}
                 </span>
-              </span>
-
               </div>
             </li>
           ))}

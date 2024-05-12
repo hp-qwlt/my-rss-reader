@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 
 export const LikesContext = createContext();
 
@@ -22,9 +22,17 @@ export const LikesProvider = ({ children }) => {
     fetchLikesData();
   }, []);
 
+    // Function to update likes data
+    const updateLikesData = (newLikesData) => {
+      setLikesData(newLikesData);
+    };
+  
+
   return (
-    <LikesContext.Provider value={{ likesData, isLoading }}>
+    <LikesContext.Provider value={{ likesData, isLoading, updateLikesData }}>
       {children}
     </LikesContext.Provider>
   );
 };
+
+export const useLikes = () => useContext(LikesContext);
