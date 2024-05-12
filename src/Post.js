@@ -16,30 +16,77 @@ const Post = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const fetchPostContent = async () => {
+    const targetUrl = 'https://api.haripriya.org/rss-feed';
+    try {
+      const response = await fetch(targetUrl);
+      const data = await response.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(data, 'text/xml');
+      const items = xmlDoc.querySelectorAll('item');
+      const rssItem = Array.from(items).find(item => { 
+        const slug =  item.querySelector('title').textContent.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-');
+        return slug === location.pathname.substring(location.pathname.lastIndexOf('/') + 1)
+    });
+
+      if (rssItem) {
+        const title = rssItem.querySelector('title').textContent;
+        const pubDate = rssItem.querySelector('pubDate').textContent;
+        const category = rssItem.querySelector('category') ? rssItem.querySelector('category').textContent : '';
+        const content = rssItem.querySelector('content\\:encoded, encoded').textContent;
+
+        setPostTitle(title);
+        setPostDate(pubDate);
+        setPostCategory(category);
+        setPostContent(content);
+
+        const postLikesData = likesData.find(like => like.title === title);
+        if (postLikesData) {
+          setLikesCount(postLikesData.likesCount);
+          setIsLiked(postLikesData.isLiked);
+        } else {
+          setLikesCount(0);
+          setIsLiked(false);
+        }
+      } else {
+        console.error('Post not found');
+      }
+    } catch (error) {
+      console.error('Error fetching post content:', error);
+    }
+  };
+
   useEffect(() => {
 
     const post = location.state || {};
 
-    const { content, title, pubDate, category } = post;
+    console.log(post)
 
-    const date = pubDate;
+    if(!post || post == '' || Object.values(post).length == 0){
+      fetchPostContent()
+    }else{
+      const { content, title, pubDate, category } = post;
 
-    const cleanedContent = content ? content.replace(/(<br\s*\/?>\s*){2,}/gi, '<br>').replace(/(<br>\s*<\/(ul|p|li)>)/gi, '</$2>') : '';
-    
-    setPostDate(date || '');
-    setPostCategory(category || '');
-    setPostContent(cleanedContent || '');
-    setPostTitle(title || '');
-
-    // Update likes count and liked status based on fetched likes data
-    const postLikesData = likesData.find(like => like.title === title);
-    if (postLikesData) {
-      setLikesCount(postLikesData.likesCount);
-      setIsLiked(postLikesData.isLiked);
-    } else {
-      setLikesCount(0);
-      setIsLiked(false);
+      const date = pubDate;
+  
+      const cleanedContent = content ? content.replace(/(<br\s*\/?>\s*){2,}/gi, '<br>').replace(/(<br>\s*<\/(ul|p|li)>)/gi, '</$2>') : '';
+      
+      setPostDate(date || '');
+      setPostCategory(category || '');
+      setPostContent(cleanedContent || '');
+      setPostTitle(title || '');
+  
+      // Update likes count and liked status based on fetched likes data
+      const postLikesData = likesData.find(like => like.title === title);
+      if (postLikesData) {
+        setLikesCount(postLikesData.likesCount);
+        setIsLiked(postLikesData.isLiked);
+      } else {
+        setLikesCount(0);
+        setIsLiked(false);
+      }
     }
+
   }, [location, likesData]);
 
   const handleGoBack = () => {
