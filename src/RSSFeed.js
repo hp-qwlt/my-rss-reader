@@ -36,7 +36,7 @@ const RSSFeed = () => {
         }));
 
         setFeedItems(rssItems);
-        setLoading(false);
+        setLoading(false);  
       } catch (error) {
         console.error('Error fetching data:', error);
         setLoading(false);
@@ -113,7 +113,10 @@ const RSSFeed = () => {
                 )}
               </div>
               <div className="rss-feed-item-content">
-                <h2 className="rss-feed-item-title" onClick={() => navigate(`/post?pubDate=${encodeURIComponent(item.pubDate)}&category=${encodeURIComponent(item.category)}&title=${encodeURIComponent(item.title)}&content=${encodeURIComponent(item.content)}`)}>
+                <h2 className="rss-feed-item-title" onClick={() => {
+                  const slug = item.title.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-');
+                  navigate(`/post/${slug}`, { state: { pubDate: item.pubDate, category: item.category, title: item.title, content: item.content } })}
+                }>
                   {item.title}
                 </h2>
                 <p className="rss-feed-item-description">{item.description}</p>

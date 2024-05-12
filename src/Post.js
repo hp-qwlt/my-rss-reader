@@ -17,11 +17,12 @@ const Post = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const content = params.get('content');
-    const title = params.get('title');
-    const date = params.get('pubDate');
-    const category = params.get('category');
+
+    const post = location.state || {};
+
+    const { content, title, pubDate, category } = post;
+
+    const date = pubDate;
 
     const cleanedContent = content ? content.replace(/(<br\s*\/?>\s*){2,}/gi, '<br>').replace(/(<br>\s*<\/(ul|p|li)>)/gi, '</$2>') : '';
     
